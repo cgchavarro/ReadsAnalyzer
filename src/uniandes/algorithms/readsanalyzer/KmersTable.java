@@ -1,5 +1,7 @@
 package uniandes.algorithms.readsanalyzer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import ngsep.sequences.RawRead;
@@ -8,6 +10,9 @@ import ngsep.sequences.RawRead;
  * @author Jorge Duitama
  */
 public class KmersTable implements RawReadProcessor {
+	
+	private int kmerLenght=0;
+	private Map<String, Integer> kmerCount;
 
 	/**
 	 * Creates a new table with the given k-mer size
@@ -15,6 +20,9 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public KmersTable(int kmerSize) {
 		// TODO: Implementar metodo
+		
+		this.kmerLenght=kmerSize;
+		kmerCount= new HashMap<String, Integer>();
 	}
 
 	/**
@@ -25,6 +33,14 @@ public class KmersTable implements RawReadProcessor {
 		String sequence = read.getSequenceString();
 		// TODO Implementar metodo. Calcular todos los k-mers del tamanho dado en la constructora y actualizar la abundancia de cada k-mer
 		
+		for (int i = 0; i <= sequence.length() - kmerLenght; i++) {
+			String kmer = sequence.substring(i, i + kmerLenght);
+			if (kmerCount.containsKey(kmer))
+			{	kmerCount.compute(kmer, (key, j) -> j + 1);
+			}
+			else
+				kmerCount.put(kmer, 1);
+		}
 	}
 	
 	/**
@@ -33,7 +49,7 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public Set<String> getDistinctKmers() {
 		// TODO Implementar metodo
-		return null;
+		return kmerCount.keySet();
 	}
 	
 	/**
@@ -43,7 +59,7 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public int getAbundance(String kmer) {
 		// TODO Implementar metodo
-		return 0;
+		return kmerCount.get(kmer);
 	}
 	
 	/**
@@ -53,6 +69,9 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public int[] calculateAbundancesDistribution() {
 		// TODO Implementar metodo
-		return null;
+		
+		int[] distributionAbundances = new int[kmerCount.size()];
+		kmerCount.values().stream().forEach((c) -> distributionAbundances[c]++);
+		return distributionAbundances;
 	}
 }
