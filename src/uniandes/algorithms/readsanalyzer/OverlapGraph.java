@@ -3,6 +3,7 @@ package uniandes.algorithms.readsanalyzer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ import ngsep.sequences.RawRead;
 
 /**
  * Represents an overlap graph for a set of reads taken from a sequence to assemble
- * @author Jorge Duitama
+ * @author Jorge Duitama, Christian Chavarro, Daniel Bautista
  *
  */
 public class OverlapGraph implements RawReadProcessor {
@@ -37,6 +38,34 @@ public class OverlapGraph implements RawReadProcessor {
 		String sequence = read.getSequenceString();
 		//TODO: Paso 1. Agregar la secuencia al mapa de conteos si no existe.
 		//Si ya existe, solo se le suma 1 a su conteo correspondiente y no se deben ejecutar los pasos 2 y 3 
+		if (!readCounts.containsKey(sequence))
+		{
+			//Se agrega en la primera posición del mapa
+			readCounts.put(sequence, 1);
+			//La lista de sobrelapes en las secuencias es creada. Puede ser un Array, se deja el tipo generico "list"
+			ArrayList<ReadOverlap> overlapSequence = new ArrayList<ReadOverlap>();
+			//Se crea la variable SequenceLenght para no solicitar dos veces el numero de la longitud de la secuencia. Se consume más espacio en memoria
+			// Pero se reduce el tiempo de computo
+			ReadOverlap overlapLecture = null;
+			int sequenceLenght = sequence.length();
+			String suf =sequence.substring(sequenceLenght-minOverlap, sequenceLenght-1);
+			String pre = "";
+			
+			for (String sequencePrefix:readCounts.keySet())
+			{
+				pre = sequencePrefix.substring(0, suf.length()-1);
+				if (pre.equals(suf)){
+					overlapLecture= new ReadOverlap(sequence, sequencePrefix, suf.length());
+					overlapSequence.add(overlapLecture);
+				}
+			}
+			overlaps.put(sequence, overlapSequence);
+			
+		}
+		else
+		{
+			readCounts.put(sequence, readCounts.get(sequence)+1);
+		}
 		
 		//TODO: Paso 2. Actualizar el mapa de sobrelapes con los sobrelapes en los que la secuencia nueva sea predecesora de una secuencia existente
 		//2.1 Crear un ArrayList para guardar las secuencias que tengan como prefijo un sufijo de la nueva secuencia
@@ -57,7 +86,20 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	private int getOverlapLength(String sequence1, String sequence2) {
 		// TODO Implementar metodo
-		return 0;
+		int lenght =0;
+		String prefix="";
+		boolean find =false;
+		int s2Lenght = sequence2.length();
+		for(int i=0; i<s2Lenght&&!find;i++)
+		{
+			prefix=sequence2.substring(0,s2Lenght-1-i);
+			if(sequence1.endsWith(prefix))
+			{
+				lenght=prefix.length();
+				find=true;
+			}
+		}
+		return lenght;
 	}
 
 	
@@ -68,7 +110,7 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public Set<String> getDistinctSequences() {
 		//TODO: Implementar metodo
-		return null;
+		return overlaps.keySet();
 	}
 
 	/**
@@ -78,7 +120,7 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int getSequenceAbundance(String sequence) {
 		//TODO: Implementar metodo
-		return 0;
+		return readCounts.get(sequence);
 	}
 	
 	/**
@@ -88,7 +130,14 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int[] calculateAbundancesDistribution() {
 		//TODO: Implementar metodo
-		return null;
+		int[] distribution = new int[readCounts.size()];
+		int frequency=0;
+		for(String sequence:readCounts.keySet())
+		{
+		frequency=getSequenceAbundance(sequence);
+		distribution[frequency]=distribution[frequency]+1;
+		}
+		return distribution;
 	}
 	/**
 	 * Calculates the distribution of number of successors
@@ -97,7 +146,14 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int[] calculateOverlapDistribution() {
 		// TODO: Implementar metodo
-		return null;
+		int[] distribution = new int[overlaps.size()];
+		int frequency=0;
+		for(String sequence:overlaps.keySet())
+		{
+		frequency=overlaps.get(sequence).size();
+		distribution[frequency]=distribution[frequency]+1;
+		}
+		return distribution;
 	}
 	/**
 	 * Predicts the leftmost sequence of the final assembly for this overlap graph
