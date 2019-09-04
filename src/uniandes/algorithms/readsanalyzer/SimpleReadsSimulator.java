@@ -2,7 +2,9 @@ package uniandes.algorithms.readsanalyzer;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import ngsep.sequences.QualifiedSequence;
 import ngsep.sequences.QualifiedSequenceList;
@@ -42,13 +44,39 @@ public class SimpleReadsSimulator {
 		Arrays.fill(fixedQS, '5');
 		String fixedQSStr = new String(fixedQS);
 		Random random = new Random();
-		
+
+
 		try (PrintStream out = new PrintStream(outFile)){
 			// TODO: Generar lecturas aleatorias. Utilizar el objeto random para generar una posicion aleatoria de inicio
 			// en la cadena sequence. Extraer la lectura de tamanho readLength e imprimirla en formato fastq.
 			// Utilizar la cadena fixedQSStr para generar calidades fijas para el formato
+			for (int i = 0; i < numReads; i++) {
 			
-			
+				out.println("sequencia-" + (i + 1));
+				char[] arregloSecuencias = sequence.substring(i, i + readLength).toCharArray();
+				Set<Integer> a = new HashSet<>();
+				for (int j = 0; j < arregloSecuencias.length * 0.001; j++) 
+				{
+					int p = random.nextInt(arregloSecuencias.length);
+				
+					while (a.contains(p))
+					{
+						p = random.nextInt(arregloSecuencias.length);
+						a.add(p);
+					}
+					char[] bases = new char[] { 'G', 'C', 'A', 'T' };
+					char let = bases[random.nextInt(bases.length)];
+					while (let == arregloSecuencias[p])
+					{
+						let = bases[random.nextInt(bases.length)];
+					}
+				}
+
+				out.println(new String(arregloSecuencias));
+				out.println(fixedQSStr);
+				
+			}
+			out.close();
 		}
 	}
 }

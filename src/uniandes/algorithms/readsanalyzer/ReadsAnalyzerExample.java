@@ -83,9 +83,16 @@ public class ReadsAnalyzerExample {
 			for(String kmer:kmers) System.out.println("The k-mer "+kmer+" is present "+kmersTable.getAbundance(kmer)+" times");
 			System.out.println("K-mer distribution");
 			int [] distribution = kmersTable.calculateAbundancesDistribution();
-			for(int i=1;i<distribution.length;i++) {
-				System.out.println(""+i+"\t"+distribution[i]);
+			double sum =0;
+			for(int i=1;i<distribution.length;i++) 
+			{ int a=distribution[i];
+				System.out.println(""+i+"\t"+a);
+				sum+=a;
+				
 			}
+			System.out.println("La cantidad de k-mers es:" + kmers.size());
+			System.out.println("la abundancia media es: " +(sum/distribution.length));
+			System.out.println("Time building k-mers table(ms): "+time);
 		}
 	}
 	/**
