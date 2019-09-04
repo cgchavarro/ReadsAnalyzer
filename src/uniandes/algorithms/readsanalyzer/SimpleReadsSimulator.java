@@ -23,6 +23,7 @@ public class SimpleReadsSimulator {
 	 * args[1]: Length of the reads to simulate
 	 * args[2]: Number of reads to simulate
 	 * args[3]: Path to the output file
+	 * args[4]: Number of errors in a args[5] number of bp
 	 * @throws Exception If the fasta file can not be loaded
 	 */
 	public static void main(String[] args) throws Exception {
@@ -55,7 +56,8 @@ public class SimpleReadsSimulator {
 				out.println("sequencia-" + (i + 1));
 				char[] arregloSecuencias = sequence.substring(i, i + readLength).toCharArray();
 				Set<Integer> a = new HashSet<>();
-				for (int j = 0; j < arregloSecuencias.length * 0.001; j++) 
+				//args[4]: Number of errors in a args[5] number of bp
+				for (int j = 0; j < arregloSecuencias.length *(Double.valueOf(args[4])/Double.valueOf(args[5])); j++) 
 				{
 					int p = random.nextInt(arregloSecuencias.length);
 				
