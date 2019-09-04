@@ -10,7 +10,7 @@ import ngsep.sequences.RawRead;
  * @author Jorge Duitama
  */
 public class KmersTable implements RawReadProcessor {
-	
+
 	private int kmerLenght=0;
 	private Map<String, Integer> kmerCount;
 
@@ -20,7 +20,7 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public KmersTable(int kmerSize) {
 		// TODO: Implementar metodo
-		
+
 		this.kmerLenght=kmerSize;
 		kmerCount= new HashMap<String, Integer>();
 	}
@@ -32,7 +32,7 @@ public class KmersTable implements RawReadProcessor {
 	public void processRead(RawRead read) {
 		String sequence = read.getSequenceString();
 		// TODO Implementar metodo. Calcular todos los k-mers del tamanho dado en la constructora y actualizar la abundancia de cada k-mer
-		
+
 		for (int i = 0; i <= sequence.length() - kmerLenght; i++) {
 			String kmer = sequence.substring(i, i + kmerLenght);
 			if (kmerCount.containsKey(kmer))
@@ -42,7 +42,7 @@ public class KmersTable implements RawReadProcessor {
 				kmerCount.put(kmer, 1);
 		}
 	}
-	
+
 	/**
 	 * List with the different k-mers found up to this point
 	 * @return Set<String> set of k-mers
@@ -51,7 +51,7 @@ public class KmersTable implements RawReadProcessor {
 		// TODO Implementar metodo
 		return kmerCount.keySet();
 	}
-	
+
 	/**
 	 * Calculates the current abundance of the given k-mer 
 	 * @param kmer sequence of length k
@@ -61,7 +61,7 @@ public class KmersTable implements RawReadProcessor {
 		// TODO Implementar metodo
 		return kmerCount.get(kmer);
 	}
-	
+
 	/**
 	 * Calculates the distribution of abundances
 	 * @return int [] array where the indexes are abundances and the values are the number of k-mers
@@ -69,7 +69,7 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public int[] calculateAbundancesDistribution() {
 		// TODO Implementar metodo
-		
+
 		int[] distributionAbundances = new int[kmerCount.size()];
 		kmerCount.values().stream().forEach((c) -> distributionAbundances[c]++);
 		return distributionAbundances;
