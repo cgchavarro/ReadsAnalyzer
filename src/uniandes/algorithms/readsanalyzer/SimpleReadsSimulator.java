@@ -52,7 +52,7 @@ public class SimpleReadsSimulator {
 			// en la cadena sequence. Extraer la lectura de tamanho readLength e imprimirla en formato fastq.
 			// Utilizar la cadena fixedQSStr para generar calidades fijas para el formato
 			for (int i = 0; i < numReads; i++) {
-			
+
 				out.println("sequencia-" + (i + 1));
 				char[] arregloSecuencias = sequence.substring(i, i + readLength).toCharArray();
 				Set<Integer> a = new HashSet<>();
@@ -60,23 +60,22 @@ public class SimpleReadsSimulator {
 				for (int j = 0; j < arregloSecuencias.length *(Double.valueOf(args[4])/Double.valueOf(args[5])); j++) 
 				{
 					int p = random.nextInt(arregloSecuencias.length);
-				
+
 					while (a.contains(p))
 					{
-						p = random.nextInt(arregloSecuencias.length);
 						a.add(p);
 					}
 					char[] bases = new char[] { 'G', 'C', 'A', 'T' };
-					char let = bases[random.nextInt(bases.length)];
-					while (let == arregloSecuencias[p])
+					char baseErrorInducida = bases[random.nextInt(bases.length)];
+					while (baseErrorInducida == arregloSecuencias[p])
 					{
-						let = bases[random.nextInt(bases.length)];
+						baseErrorInducida = bases[random.nextInt(bases.length)];
 					}
 				}
 
 				out.println(new String(arregloSecuencias));
 				out.println(fixedQSStr);
-				
+
 			}
 			out.close();
 		}
