@@ -55,23 +55,21 @@ public class OverlapGraph implements RawReadProcessor {
 			readCounts.put(sequence, 1);
 			//La lista de sobrelapes en las secuencias es creada. Puede ser un Array, se deja el tipo generico "list"
 			ArrayList<ReadOverlap> overlapSequence = new ArrayList<ReadOverlap>();
-			//Se crea la variable SequenceLenght para no solicitar dos veces el numero de la longitud de la secuencia. Se consume más espacio en memoria
-			// Pero se reduce el tiempo de computo
-			ReadOverlap overlapLecture = null;
-			String sufijo = "";
 
-			for(String secuenciaEvaluada:readCounts.keySet())
+			ReadOverlap overlapLecture = null;
+			String sufix = "";
+
+			for(String evaluateSequence:readCounts.keySet())
 			{
-				if(!secuenciaEvaluada.equals(sequence))
+				if(!evaluateSequence.equals(sequence))
 				{
-					//sufijo = sequence;
 					for(int i = 0; i < sequence.length()-minOverlap;i++)
 					{
-						sufijo = sequence.substring(i, sequence.length());
-						if(secuenciaEvaluada.startsWith(sufijo))
+						sufix = sequence.substring(i, sequence.length());
+						if(evaluateSequence.startsWith(sufix))
 						{
 
-							overlapLecture = new ReadOverlap(sequence, secuenciaEvaluada, sufijo.length());
+							overlapLecture = new ReadOverlap(sequence, evaluateSequence, sufix.length());
 							overlapSequence.add(overlapLecture);
 						}
 					}
@@ -81,22 +79,22 @@ public class OverlapGraph implements RawReadProcessor {
 			}
 
 
-			for(String secuenciaEvaluada:overlaps.keySet())
+			for(String evaluateSequence:overlaps.keySet())
 			{
-				overlapSequence = overlaps.get(secuenciaEvaluada);
-				if(!secuenciaEvaluada.equals(sequence))
+				overlapSequence = overlaps.get(evaluateSequence);
+				if(!evaluateSequence.equals(sequence))
 				{
-					for(int j = 0; j < secuenciaEvaluada.length()- minOverlap;j++)
+					for(int j = 0; j < evaluateSequence.length()- minOverlap;j++)
 					{
-						sufijo = secuenciaEvaluada.substring(j, secuenciaEvaluada.length());
-						if(sequence.startsWith(sufijo))
+						sufix = evaluateSequence.substring(j, evaluateSequence.length());
+						if(sequence.startsWith(sufix))
 						{
-							overlapLecture = new ReadOverlap(secuenciaEvaluada, sequence, sufijo.length());
+							overlapLecture = new ReadOverlap(evaluateSequence, sequence, sufix.length());
 							overlapSequence.add(overlapLecture);
 
 						}
 					}
-					overlaps.put(secuenciaEvaluada, overlapSequence);
+					overlaps.put(evaluateSequence, overlapSequence);
 				}
 
 			}
@@ -169,8 +167,8 @@ public class OverlapGraph implements RawReadProcessor {
 			distribution[frequency]=distribution[frequency]+1;
 		}
 		return distribution;
-		
-		
+
+
 	}
 	/**
 	 * Calculates the distribution of number of successors
@@ -180,7 +178,7 @@ public class OverlapGraph implements RawReadProcessor {
 	public int[] calculateOverlapDistribution() {
 		// TODO: Implementar metodo
 		int[] distribution = new int[overlaps.size()];
-	//	String[] sequences = new String[overlaps.size()];
+		//	String[] sequences = new String[overlaps.size()];
 		int frequency=0;
 		for(String sequence:overlaps.keySet())
 		{
@@ -189,62 +187,44 @@ public class OverlapGraph implements RawReadProcessor {
 		}
 		return distribution;
 	}
-	
-	
-	public HashMap<String,Integer> llenadoCantidadPredecesoresPorSecuencia()
-	{
-		HashMap <String,Integer> llenadoCantidadPredecesoresPorSecuencia = new HashMap<String,Integer>();
 
-		for (String secuencia:readCounts.keySet())
-		{
-			llenadoCantidadPredecesoresPorSecuencia.put(secuencia, 0);
-		}
-
-		return llenadoCantidadPredecesoresPorSecuencia;
-	}
-	
-	public HashMap<String,Integer> cantidadPredecesoresPorSecuencia()
+	/**
+	 * Predicts the leftmost sequence of the final assembly for this overlap graph
+	 * @return String Source sequence for the layout path that will be the left most subsequence in the assembly
+	 */
+	public String getSourceSequence () 
 	{
-		int contadorPredecesores = 0;
+		int predecesorsCount = 0;
 		ArrayList<ReadOverlap> sequenceOverlap = new ArrayList<ReadOverlap>();
-		HashMap <String,Integer> cantidadPredecesoresPorSecuencia = llenadoCantidadPredecesoresPorSecuencia();
+		HashMap <String,Integer> sequencePredecesors = new HashMap<String,Integer>() ;
+
+		for (String sequence:readCounts.keySet())
+		{
+			sequencePredecesors.put(sequence, 0);
+		}
 
 		for(String secuencia:overlaps.keySet())
 		{
 			sequenceOverlap = overlaps.get(secuencia);
 			for (ReadOverlap over:sequenceOverlap)
 			{
-				contadorPredecesores = cantidadPredecesoresPorSecuencia.get(over.getDestSequence());
-				cantidadPredecesoresPorSecuencia.put(over.getDestSequence(), contadorPredecesores+1);
-
+				predecesorsCount = sequencePredecesors.get(over.getDestSequence());
+				sequencePredecesors.put(over.getDestSequence(), predecesorsCount+1);
 			}
 
 		}
-		return cantidadPredecesoresPorSecuencia;
-	}
-	
-	/**
-	 * Predicts the leftmost sequence of the final assembly for this overlap graph
-	 * @return String Source sequence for the layout path that will be the left most subsequence in the assembly
-	 */
-	public String getSourceSequence () {
-		// TODO Implementar metodo recorriendo las secuencias existentes y buscando una secuencia que no tenga predecesores
 
-		int contadorCeros = 0;
-		HashMap <String,Integer> cantidadPredecesoresPorSecuencia = cantidadPredecesoresPorSecuencia();
-		String secuenciaInicial = "";			
+		String sourceSequence = "";			
 
-		for(String secuencia: cantidadPredecesoresPorSecuencia.keySet())
+		for(String actualSequencePredecesors: sequencePredecesors.keySet())
 		{
-			if(cantidadPredecesoresPorSecuencia.get(secuencia)==0)
-			{
-				secuenciaInicial = secuencia;
-				contadorCeros ++;
-			}
+			if(sequencePredecesors.get(actualSequencePredecesors)==0)
+				sourceSequence = actualSequencePredecesors;
+
 		}
-		// TODO Implementar metodo recorriendo las secuencias existentes y buscando una secuencia que no tenga predecesores
-		return secuenciaInicial;
-	
+
+		return sourceSequence;
+
 	}
 
 	/**
